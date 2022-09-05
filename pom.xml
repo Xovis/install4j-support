@@ -70,7 +70,7 @@
     <repository>
       <id>ejt</id>
       <name>ej-technologies</name>
-      <url>http://maven.ej-technologies.com/repository</url>
+      <url>https://maven.ej-technologies.com/repository</url>
     </repository>
   </repositories>
 
@@ -86,8 +86,8 @@
   </prerequisites>
 
   <properties>
-    <maven.compiler.source>1.5</maven.compiler.source>
-    <maven.compiler.target>1.5</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
 
     <revision>1.4.0-SNAPSHOT</revision>
 
@@ -271,7 +271,7 @@
             <configuration>
               <signature>
                 <groupId>org.codehaus.mojo.signature</groupId>
-                <artifactId>java15</artifactId>
+                <artifactId>java18</artifactId>
                 <version>1.0</version>
               </signature>
             </configuration>

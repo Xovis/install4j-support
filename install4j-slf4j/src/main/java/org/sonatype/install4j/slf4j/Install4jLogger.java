@@ -12,20 +12,23 @@
  */
 package org.sonatype.install4j.slf4j;
 
+import com.install4j.api.Util;
+import com.install4j.api.actions.Action;
+import com.install4j.api.screens.Screen;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+import org.slf4j.event.Level;
+import org.slf4j.helpers.AbstractLogger;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+import org.slf4j.spi.LocationAwareLogger;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Properties;
-
-import com.install4j.api.Util;
-import com.install4j.api.actions.Action;
-import com.install4j.api.screens.Screen;
-import org.slf4j.Logger;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MarkerIgnoringBase;
-import org.slf4j.helpers.MessageFormatter;
-import org.slf4j.spi.LocationAwareLogger;
 
 // Based in slf4j SimpleLogger
 
@@ -35,7 +38,7 @@ import org.slf4j.spi.LocationAwareLogger;
  * @since 1.0
  */
 public class Install4jLogger
-    extends MarkerIgnoringBase
+    extends AbstractLogger
 {
   private static final long serialVersionUID = 1;
 
@@ -53,9 +56,9 @@ public class Install4jLogger
 
   public static final int LEVEL_ERROR = LocationAwareLogger.ERROR_INT;
 
-  public static final int LEVEL_ALL = (LEVEL_TRACE - 10);
+  public static final int LEVEL_ALL = LEVEL_TRACE - 10;
 
-  public static final int LEVEL_OFF = (LEVEL_ERROR + 10);
+  public static final int LEVEL_OFF = LEVEL_ERROR + 10;
 
   private static final Properties configuration = new Properties();
 
@@ -71,47 +74,40 @@ public class Install4jLogger
     catch (SecurityException e) {
       // Ignore
     }
-    return (prop == null) ? configuration.getProperty(name) : prop;
+    return prop == null ? configuration.getProperty(name) : prop;
   }
 
-  //private static String getStringProperty(final String name, final String defaultValue) {
-  //    String prop = getStringProperty(name);
-  //    return (prop == null) ? defaultValue : prop;
-  //}
-
   private static boolean getBooleanProperty(final String name, final boolean defaultValue) {
-    String prop = getStringProperty(name);
-    return (prop == null) ? defaultValue : "true".equalsIgnoreCase(prop);
+    try {
+      return Boolean.getBoolean(name);
+    }
+    catch (SecurityException e) {
+      // Ignore
+    }
+    return defaultValue;
   }
 
   static {
-    URL url = (URL) AccessController.doPrivileged(
-        new PrivilegedAction()
-        {
-          public Object run() {
-            ClassLoader threadCL = Thread.currentThread().getContextClassLoader();
-            if (threadCL != null) {
-              return threadCL.getResource(CONFIGURATION_FILE);
-            }
-            else {
-              return ClassLoader.getSystemResource(CONFIGURATION_FILE);
-            }
-          }
-        });
+    URL url = AccessController.doPrivileged(
+      (PrivilegedAction<URL>) () -> {
+        ClassLoader threadCL = Thread.currentThread().getContextClassLoader();
+        if (threadCL != null) {
+          return threadCL.getResource(CONFIGURATION_FILE);
+        }
+        else {
+          return ClassLoader.getSystemResource(CONFIGURATION_FILE);
+        }
+      });
 
     if (url != null) {
       try {
         Util.logInfo(null, "Reading " + CONFIGURATION_FILE + ": " + url);
-        InputStream input = url.openStream();
-        try {
+        try (InputStream input = url.openStream()) {
           configuration.load(input);
           Util.logInfo(null, "Configuration: " + configuration);
         }
-        finally {
-          input.close();
-        }
       }
-      catch (java.io.IOException e) {
+      catch (IOException e) {
         Util.logError(null, "Failed to load: " + CONFIGURATION_FILE);
         Util.log(e);
       }
@@ -129,7 +125,7 @@ public class Install4jLogger
 
   protected int currentLogLevel = LEVEL_INFO;
 
-  private Class type;
+  private final Class<?> type;
 
   private boolean screenOrAction = false;
 
@@ -178,7 +174,7 @@ public class Install4jLogger
     }
   }
 
-  private Class loadType() {
+  private Class<?> loadType() {
     try {
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       return cl.loadClass(name);
@@ -257,127 +253,196 @@ public class Install4jLogger
     log(level, tp.getMessage(), tp.getThrowable());
   }
 
-  protected boolean isLevelEnabled(int logLevel) {
-    return (logLevel >= currentLogLevel);
+  @Override
+  protected void handleNormalizedLoggingCall(Level level, Marker marker, String msg, Object[] arguments, Throwable throwable) {
+    if (!isLevelEnabled(level.toInt())) {
+      return;
+    }
+    FormattingTuple tp = MessageFormatter.arrayFormat(msg, arguments, throwable);
+    log(level.toInt(), tp.getMessage(), tp.getThrowable());
   }
 
+  protected boolean isLevelEnabled(int logLevel) {
+    return logLevel >= currentLogLevel;
+  }
+
+  @Override
   public boolean isTraceEnabled() {
     return isLevelEnabled(LEVEL_TRACE);
   }
 
+  @Override
+  public boolean isTraceEnabled(Marker marker) {
+    return isTraceEnabled();
+  }
+
+  @Override
   public void trace(String msg) {
     log(LEVEL_TRACE, msg, null);
   }
 
+  @Override
   public void trace(String format, Object param1) {
     formatAndLog(LEVEL_TRACE, format, param1, null);
   }
 
+  @Override
   public void trace(String format, Object param1, Object param2) {
     formatAndLog(LEVEL_TRACE, format, param1, param2);
   }
 
+  @Override
   public void trace(String format, Object[] argArray) {
     formatAndLog(LEVEL_TRACE, format, argArray);
   }
 
+  @Override
   public void trace(String msg, Throwable t) {
     log(LEVEL_TRACE, msg, t);
   }
 
+  @Override
   public boolean isDebugEnabled() {
     return isLevelEnabled(LEVEL_DEBUG);
   }
 
+  @Override
+  public boolean isDebugEnabled(Marker marker) {
+    return isDebugEnabled();
+  }
+
+  @Override
   public void debug(String msg) {
     log(LEVEL_DEBUG, msg, null);
   }
 
+  @Override
   public void debug(String format, Object param1) {
     formatAndLog(LEVEL_DEBUG, format, param1, null);
   }
 
+  @Override
   public void debug(String format, Object param1, Object param2) {
     formatAndLog(LEVEL_DEBUG, format, param1, param2);
   }
 
+  @Override
   public void debug(String format, Object[] argArray) {
     formatAndLog(LEVEL_DEBUG, format, argArray);
   }
 
+  @Override
   public void debug(String msg, Throwable t) {
     log(LEVEL_DEBUG, msg, t);
   }
 
+  @Override
   public boolean isInfoEnabled() {
     return isLevelEnabled(LEVEL_INFO);
   }
 
+  @Override
+  public boolean isInfoEnabled(Marker marker) {
+    return isInfoEnabled();
+  }
+
+  @Override
   public void info(String msg) {
     log(LEVEL_INFO, msg, null);
   }
 
+  @Override
   public void info(String format, Object arg) {
     formatAndLog(LEVEL_INFO, format, arg, null);
   }
 
+  @Override
   public void info(String format, Object arg1, Object arg2) {
     formatAndLog(LEVEL_INFO, format, arg1, arg2);
   }
 
+  @Override
   public void info(String format, Object[] argArray) {
     formatAndLog(LEVEL_INFO, format, argArray);
   }
 
+  @Override
   public void info(String msg, Throwable t) {
     log(LEVEL_INFO, msg, t);
   }
 
+  @Override
   public boolean isWarnEnabled() {
     return isLevelEnabled(LEVEL_WARN);
   }
 
+  @Override
+  public boolean isWarnEnabled(Marker marker) {
+    return isWarnEnabled();
+  }
+
+  @Override
   public void warn(String msg) {
     log(LEVEL_WARN, msg, null);
   }
 
+  @Override
   public void warn(String format, Object arg) {
     formatAndLog(LEVEL_WARN, format, arg, null);
   }
 
+  @Override
   public void warn(String format, Object arg1, Object arg2) {
     formatAndLog(LEVEL_WARN, format, arg1, arg2);
   }
 
+  @Override
   public void warn(String format, Object[] argArray) {
     formatAndLog(LEVEL_WARN, format, argArray);
   }
 
+  @Override
   public void warn(String msg, Throwable t) {
     log(LEVEL_WARN, msg, t);
   }
 
+  @Override
   public boolean isErrorEnabled() {
     return isLevelEnabled(LEVEL_ERROR);
   }
 
+  @Override
+  public boolean isErrorEnabled(Marker marker) {
+    return isErrorEnabled();
+  }
+
+  @Override
   public void error(String msg) {
     log(LEVEL_ERROR, msg, null);
   }
 
+  @Override
   public void error(String format, Object arg) {
     formatAndLog(LEVEL_ERROR, format, arg, null);
   }
 
+  @Override
   public void error(String format, Object arg1, Object arg2) {
     formatAndLog(LEVEL_ERROR, format, arg1, arg2);
   }
 
+  @Override
   public void error(String format, Object[] argArray) {
     formatAndLog(LEVEL_ERROR, format, argArray);
   }
 
+  @Override
   public void error(String msg, Throwable t) {
     log(LEVEL_ERROR, msg, t);
+  }
+
+  @Override
+  protected String getFullyQualifiedCallerName() {
+    return null;
   }
 }

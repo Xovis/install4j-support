@@ -15,30 +15,18 @@ package org.sonatype.install4j.slf4j;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
-
-// Based in slf4j SimpleLoggerFactory
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * install4j-slf4j bridge {@link ILoggerFactory}.
  *
  * @since 1.0
  */
-public class Install4jLoggerFactory
-    implements ILoggerFactory
-{
-  private final Map<String, Logger> loggers = new HashMap<String, Logger>();
+public class Install4jLoggerFactory implements ILoggerFactory {
+  private final Map<String, Logger> loggers = new ConcurrentHashMap<>();
 
   public Logger getLogger(String name) {
-    Logger logger;
-    synchronized (this) {
-      logger = loggers.get(name);
-      if (logger == null) {
-        logger = new Install4jLogger(name);
-        loggers.put(name, logger);
-      }
-    }
-    return logger;
+    return loggers.computeIfAbsent(name, Install4jLogger::new);
   }
 }
