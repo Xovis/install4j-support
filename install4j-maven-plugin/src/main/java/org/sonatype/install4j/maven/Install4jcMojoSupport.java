@@ -49,7 +49,7 @@ public abstract class Install4jcMojoSupport
   @Parameter(property = "install4j.failIfMissing", defaultValue = "false")
   protected boolean failIfMissing;
 
-  @Component
+  @Parameter(defaultValue = "${project}", readonly = true)
   protected MavenProject project;
 
   @Override

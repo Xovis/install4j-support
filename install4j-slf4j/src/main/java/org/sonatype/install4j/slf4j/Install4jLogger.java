@@ -219,7 +219,7 @@ public class Install4jLogger
 
     buff.append(message);
 
-    // If the logger if for a screen or action, null the source to use the current (which should be the screen or action)
+    // If the logger is for a screen or action, null the source to use the current (which should be the screen or action)
     Object source = type;
     if (screenOrAction) {
       source = null;
@@ -292,7 +292,7 @@ public class Install4jLogger
   }
 
   @Override
-  public void trace(String format, Object[] argArray) {
+  public void trace(String format, Object... argArray) {
     formatAndLog(LEVEL_TRACE, format, argArray);
   }
 
@@ -327,7 +327,7 @@ public class Install4jLogger
   }
 
   @Override
-  public void debug(String format, Object[] argArray) {
+  public void debug(String format, Object... argArray) {
     formatAndLog(LEVEL_DEBUG, format, argArray);
   }
 
@@ -362,7 +362,7 @@ public class Install4jLogger
   }
 
   @Override
-  public void info(String format, Object[] argArray) {
+  public void info(String format, Object... argArray) {
     formatAndLog(LEVEL_INFO, format, argArray);
   }
 
@@ -397,7 +397,7 @@ public class Install4jLogger
   }
 
   @Override
-  public void warn(String format, Object[] argArray) {
+  public void warn(String format, Object... argArray) {
     formatAndLog(LEVEL_WARN, format, argArray);
   }
 
@@ -432,7 +432,7 @@ public class Install4jLogger
   }
 
   @Override
-  public void error(String format, Object[] argArray) {
+  public void error(String format, Object... argArray) {
     formatAndLog(LEVEL_ERROR, format, argArray);
   }
 

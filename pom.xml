@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.sonatype.buildsupport</groupId>
     <artifactId>public-parent</artifactId>
-    <version>17</version>
+    <version>33</version>
     <relativePath/>
   </parent>
 
@@ -30,13 +30,13 @@
   <version>${revision}</version>
   <packaging>pom</packaging>
 
-  <url>http://sonatype.github.io/install4j-support</url>
+  <url>https://sonatype.github.io/install4j-support</url>
   <inceptionYear>2012</inceptionYear>
 
   <licenses>
     <license>
-      <name>ASLv2</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
 
@@ -81,10 +81,6 @@
     </site>
   </distributionManagement>
 
-  <prerequisites>
-    <maven>3.5</maven>
-  </prerequisites>
-
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -106,7 +102,7 @@
       <dependency>
         <groupId>org.sonatype.sisu.goodies</groupId>
         <artifactId>goodies-testsupport</artifactId>
-        <version>1.13</version>
+        <version>1.15</version>
       </dependency>
 
       <!-- INTERNAL -->
@@ -165,13 +161,13 @@
       <extension>
         <groupId>org.apache.maven.scm</groupId>
         <artifactId>maven-scm-provider-gitexe</artifactId>
-        <version>1.9.2</version>
+        <version>1.13.0</version>
       </extension>
 
       <extension>
         <groupId>org.apache.maven.scm</groupId>
         <artifactId>maven-scm-manager-plexus</artifactId>
-        <version>1.9.2</version>
+        <version>1.13.0</version>
       </extension>
 
       <extension>
@@ -188,15 +184,15 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.4.2</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.4</version>
+          <version>3.4.1</version>
           <configuration>
-            <source>1.5</source>
+            <source>1.8</source>
           </configuration>
         </plugin>
 
@@ -205,7 +201,7 @@
         <plugin>
           <groupId>${project.groupId}</groupId>
           <artifactId>install4j-maven-plugin</artifactId>
-          <version>${revision}</version>
+          <version>2.0.0-SNAPSHOT</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -239,6 +235,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>checks</id>
@@ -246,23 +243,27 @@
             <goals>
               <goal>enforce</goal>
             </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>[3.0,)</version>
-                </requireMavenVersion>
-                <requireJavaVersion>
-                  <version>[1.6,)</version>
-                </requireJavaVersion>
-              </rules>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <rules>
+            <requireMavenVersion>
+              <version>[3.5,)</version>
+            </requireMavenVersion>
+            <requireJavaVersion>
+              <version>[8,)</version>
+            </requireJavaVersion>
+            <requireNoRepositories>
+              <banRepositories>false</banRepositories>
+            </requireNoRepositories>
+          </rules>
+        </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
+        <version>1.22</version>
         <executions>
           <execution>
             <goals>
@@ -282,12 +283,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.5</version>
+        <version>3.12.1</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.maven.doxia</groupId>
             <artifactId>doxia-module-markdown</artifactId>
-            <version>1.7</version>
+            <version>1.11.1</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -311,37 +312,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.4.1</version>
       </plugin>
-
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-javadoc-plugin</artifactId>-->
-<!--        <version>2.10.3</version>-->
-<!--        <configuration>-->
-<!--          <docletArtifact>-->
-<!--            <groupId>com.google.doclava</groupId>-->
-<!--            <artifactId>doclava</artifactId>-->
-<!--            <version>1.0.6</version>-->
-<!--          </docletArtifact>-->
-<!--          <doclet>com.google.doclava.Doclava</doclet>-->
-<!--          <source>1.5</source>-->
-<!--          <bootclasspath>${sun.boot.class.path}</bootclasspath>-->
-<!--          <additionalparam>-->
-<!--            -quiet-->
-<!--            -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?-->
-<!--            -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml-->
-<!--            -hdf project.name "${project.name}"-->
-<!--            -d ${project.build.directory}/site/apidocs-->
-<!--          </additionalparam>-->
-<!--          <useStandardDocletOptions>false</useStandardDocletOptions>-->
-<!--        </configuration>-->
-<!--      </plugin>-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.4.1</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <additionalOptions>
@@ -354,19 +331,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.6</version>
+        <version>3.18.0</version>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.5</version>
+        <version>3.3.0</version>
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.3</version>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>4.7.1.1</version>
       </plugin>
 
       <plugin>

@@ -17,10 +17,10 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.sonatype.sisu.litmus.testsupport.TestSupport;
+import org.sonatype.sisu.goodies.testsupport.TestSupport;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests for {@link VersionHelper}.

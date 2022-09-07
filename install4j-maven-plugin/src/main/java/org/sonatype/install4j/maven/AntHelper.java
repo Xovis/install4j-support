@@ -25,7 +25,6 @@ import org.apache.tools.ant.taskdefs.Property;
 import org.apache.tools.ant.types.Path;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -78,10 +77,9 @@ public class AntHelper
 
   private void inheritProperties() {
     // Propagate properties
-    Map props = project.getProperties();
-    Iterator iter = props.keySet().iterator();
-    while (iter.hasNext()) {
-      String name = (String) iter.next();
+    Map<Object, Object> props = project.getProperties();
+    for (Object o : props.keySet()) {
+      String name = (String) o;
       String value = String.valueOf(props.get(name));
       setProperty(name, value);
     }
@@ -93,9 +91,9 @@ public class AntHelper
   public <T extends ProjectComponent> T createTask(final Class<T> type) {
     assert type != null;
 
-    T task = null;
+    T task;
     try {
-      task = type.newInstance();
+      task = type.getDeclaredConstructor().newInstance();
     }
     catch (Exception e) {
       throw new RuntimeException(e);
